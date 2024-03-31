@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { getChatGPTResponse } from './ChatGPTService';
 import './App.css';
+import { css } from '@emotion/react';
+import { RingLoader } from 'react-spinners'; 
 
 function App() {
   const [topic, setTopic] = useState('');
   const [points, setPoints] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const override = css`
+  display: block;
+  margin: 0 auto;
+  `;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const response = await getChatGPTResponse(topic);
+    setLoading(false);
     const cleanedResponse = response.replace(/### /g, ' ');
     const bulletPoints = cleanedResponse.split(/(?=\d+\. )/)
       .filter(sentence => sentence.trim() !== '')
@@ -54,47 +63,55 @@ function App() {
   };
 
   return (
-
     <div className="App">
-      <h1 className = "title ">Explore Educational Topics</h1>
-      <div className = 'form-container'>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Enter a topic or question"
-        />
-        <button type="submit">Get Explanation</button>
-      </form>
+      <h1 className="title">Explore Educational Topics</h1>
+      <div className='form-container'>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter a topic or question"
+          />
+          <button type="submit">Get Explanation</button>
+        </form>
       </div>
-      {points.length > 0 && <div><h2>Key Points:</h2>
-        {points.map((point, pointIndex) => (
-          <div key={pointIndex} style={{ marginLeft: '20px' }}>
-            <p>{point.content}</p>
-            {!point.detailRequested && (
-              <button onClick={() => handleDetailRequest(pointIndex)} style={{ marginLeft: '20px' }}>
-                Ask for Details
-              </button>
-            )}
-            {point.details.length > 0 && point.details.map((detail, detailIndex) => (
-              <div key={detailIndex} style={{ marginLeft: '40px' }}>
-                <p>{detail.content}</p>
-                {/* Show button to ask for further details */}
-                <button onClick={() => handleDetailRequest(pointIndex, detailIndex)} style={{ marginLeft: '20px' }}>
-                  Ask for More Details
+      {/* Render loading spinner if loading state is true */}
+      {loading ? (
+        <div className="spinner">
+          <RingLoader color="#FFFFFF" loading={loading} css={override} size={50} />
+        </div>
+      ) : (
+        <div>
+          <h2>Key Points:</h2>
+          {points.length > 0 && points.map((point, pointIndex) => (
+            <div key={pointIndex} style={{ marginLeft: '20px' }}>
+              <p>{point.content}</p>
+              {!point.detailRequested && (
+                <button onClick={() => handleDetailRequest(pointIndex)} style={{ marginLeft: '20px' }}>
+                  Ask for Details
                 </button>
-                {detail.furtherDetails.length > 0 && detail.furtherDetails.map((furtherDetail, furtherIndex) => (
-                  <p key={furtherIndex} style={{ marginLeft: '60px', marginTop: '10px' }}>{furtherDetail.content}</p>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>}
+              )}
+              {point.details.length > 0 && point.details.map((detail, detailIndex) => (
+                <div key={detailIndex} style={{ marginLeft: '40px' }}>
+                  <p>{detail.content}</p>
+                  {/* Show button to ask for further details */}
+                  <button onClick={() => handleDetailRequest(pointIndex, detailIndex)} style={{ marginLeft: '20px' }}>
+                    Ask for More Details
+                  </button>
+                  {detail.furtherDetails.length > 0 && detail.furtherDetails.map((furtherDetail, furtherIndex) => (
+                    <p key={furtherIndex} style={{ marginLeft: '60px', marginTop: '10px' }}>{furtherDetail.content}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
     
   );
+  
 }
 
 export default App;

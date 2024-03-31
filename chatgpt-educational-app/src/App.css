@@ -1,13 +1,18 @@
 .App {
   background: linear-gradient(to right, #00686bdc, #5596a8);
   color: #ffffff;
+  min-height: 100vh;
 }
 
 
-.title {
+.title, .spinner {
   text-align: center;
   display: flex;
   justify-content: center;
+}
+
+.spinner {
+  margin-top: 20px;  
 }
 
 .form-container {
