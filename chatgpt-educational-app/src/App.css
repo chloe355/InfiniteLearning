@@ -1,3 +1,9 @@
+.App {
+  background: linear-gradient(to right, #00686bdc, #5596a8);
+  color: #ffffff;
+}
+
+
 .title {
   text-align: center;
   display: flex;
