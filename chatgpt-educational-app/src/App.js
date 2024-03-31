@@ -8,7 +8,10 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await getChatGPTResponse(topic);
+    //clean up once of all ### .
     const bulletPoints = response
+      // Replace '### .' with a whitespace
+      .replace(/### \./g, ' ')
       // Use a regex to split by numbers followed by a dot and space, assuming enumeration like "1. ", "2. ", etc.
       .split(/(?=\d+\. )/)
       .filter(sentence => sentence.trim() !== '')
