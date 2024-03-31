@@ -1,12 +1,13 @@
-.App {
+.title {
   text-align: center;
   display: flex;
   justify-content: center;
 }
 
-.title {
+.form-container {
   display: flex;
   justify-content: center;
+  margin-bottom: 20px; /* Adjust as needed */
 }
 
 .App-logo {

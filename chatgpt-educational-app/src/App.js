@@ -56,7 +56,8 @@ function App() {
   return (
 
     <div className="App">
-      <h1>Explore Educational Topics</h1>
+      <h1 className = "title ">Explore Educational Topics</h1>
+      <div className = 'form-container'>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -66,6 +67,7 @@ function App() {
         />
         <button type="submit">Get Explanation</button>
       </form>
+      </div>
       {points.length > 0 && <div><h2>Key Points:</h2>
         {points.map((point, pointIndex) => (
           <div key={pointIndex} style={{ marginLeft: '20px' }}>
