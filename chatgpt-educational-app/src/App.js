@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getChatGPTResponse } from './ChatGPTService';
+import './App.css';
 
 function App() {
   const [topic, setTopic] = useState('');
@@ -54,7 +55,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Explore Educational Topics</h1>
+      <h1 className="title">Explore Educational Topics</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
