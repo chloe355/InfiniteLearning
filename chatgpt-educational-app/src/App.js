@@ -28,9 +28,18 @@ function App() {
     const point = points[index];
     // Fetch more details from the ChatGPT API using the text of the point
     const detailedResponse = await getChatGPTResponse(point.content);
+    const detailsArray = detailedResponse.split(/(?=\d+\. )/)
+        .filter(detail => detail.trim() !== '')
+        .map((detail, i) => `${detail}.`);
+    
     setPoints(points.map((p, i) => {
       if (i === index) {
-        return { ...p, content: `${p.content} - Details: ${detailedResponse}`, detailRequested: true };
+        return {
+            ...p,
+            // Store the array of details directly
+            details: detailsArray,
+            detailRequested: true
+        };
       }
       return p;
     }));
@@ -49,7 +58,7 @@ function App() {
         <button type="submit">Get Explanation</button>
       </form>
       {points.length > 0 && <h2>Key Points:</h2>}
-      <ul>
+      {/* <ul>
         {points.map((point, index) => (
           <li key={index}>
             {point.content}
@@ -58,7 +67,27 @@ function App() {
             )}
           </li>
         ))}
+      </ul> */}
+      <ul>
+          {points.map((point, index) => (
+              <li key={index}>
+                  <div>
+                      {point.content}
+                      {!point.detailRequested && (
+                          <button onClick={() => handleDetailRequest(index)} style={{marginLeft: '10px'}}>Ask for Details</button>
+                      )}
+                  </div>
+                  {point.detailRequested && point.details && (
+                      <div style={{marginTop: '10px'}}>
+                          {point.details.map((detail, detailIndex) => (
+                              <p key={detailIndex} style={{marginBottom: '5px'}}>{detail}</p>
+                          ))}
+                      </div>
+                  )}
+              </li>
+          ))}
       </ul>
+
     </div>
   );
 }
