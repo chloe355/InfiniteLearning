@@ -8,40 +8,47 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await getChatGPTResponse(topic);
-    //clean up once of all ### .
-    const bulletPoints = response
-      // Replace '### .' with a whitespace
-      .replace(/### \./g, ' ')
-      // Use a regex to split by numbers followed by a dot and space, assuming enumeration like "1. ", "2. ", etc.
-      .split(/(?=\d+\. )/)
+    const cleanedResponse = response.replace(/### /g, ' ');
+    const bulletPoints = cleanedResponse.split(/(?=\d+\. )/)
       .filter(sentence => sentence.trim() !== '')
       .map((sentence, index) => ({
-        content: sentence.endsWith('.') ? sentence : `${sentence}.`, // Ensures each point ends with a period
+        content: sentence.endsWith('.') ? sentence : `${sentence}.`,
         detailRequested: false,
+        details: [],
         index
       }));
 
     setPoints(bulletPoints);
   };
 
-  const handleDetailRequest = async (index) => {
-    const point = points[index];
-    // Fetch more details from the ChatGPT API using the text of the point
-    const detailedResponse = await getChatGPTResponse(point.content);
+  const handleDetailRequest = async (pointIndex, detailIndex = null) => {
+    let content;
+    if (detailIndex !== null) {
+      content = points[pointIndex].details[detailIndex].content;
+    } else {
+      content = points[pointIndex].content;
+    }
+    const detailedResponse = await getChatGPTResponse(content);
     const detailsArray = detailedResponse.split(/(?=\d+\. )/)
         .filter(detail => detail.trim() !== '')
-        .map((detail, i) => `${detail}.`);
+        .map(detail => ({
+          content: `${detail}.`,
+          furtherDetails: []
+        }));
     
-    setPoints(points.map((p, i) => {
-      if (i === index) {
-        return {
-            ...p,
-            // Store the array of details directly
-            details: detailsArray,
-            detailRequested: true
-        };
+    setPoints(points.map((point, i) => {
+      if (i === pointIndex) {
+        const updatedPoint = { ...point, detailRequested: true };
+        if (detailIndex !== null) {
+          // Append further details for a sub-detail
+          updatedPoint.details[detailIndex].furtherDetails = detailsArray;
+        } else {
+          // Update the details array for a main point detail request
+          updatedPoint.details = detailsArray;
+        }
+        return updatedPoint;
       }
-      return p;
+      return point;
     }));
   };
 
@@ -57,37 +64,30 @@ function App() {
         />
         <button type="submit">Get Explanation</button>
       </form>
-      {points.length > 0 && <h2>Key Points:</h2>}
-      {/* <ul>
-        {points.map((point, index) => (
-          <li key={index}>
-            {point.content}
+      {points.length > 0 && <div><h2>Key Points:</h2>
+        {points.map((point, pointIndex) => (
+          <div key={pointIndex} style={{ marginLeft: '20px' }}>
+            <p>{point.content}</p>
             {!point.detailRequested && (
-              <button onClick={() => handleDetailRequest(index)} style={{marginLeft: '10px'}}>Ask for Details</button>
+              <button onClick={() => handleDetailRequest(pointIndex)} style={{ marginLeft: '20px' }}>
+                Ask for Details
+              </button>
             )}
-          </li>
+            {point.details.length > 0 && point.details.map((detail, detailIndex) => (
+              <div key={detailIndex} style={{ marginLeft: '40px' }}>
+                <p>{detail.content}</p>
+                {/* Show button to ask for further details */}
+                <button onClick={() => handleDetailRequest(pointIndex, detailIndex)} style={{ marginLeft: '20px' }}>
+                  Ask for More Details
+                </button>
+                {detail.furtherDetails.length > 0 && detail.furtherDetails.map((furtherDetail, furtherIndex) => (
+                  <p key={furtherIndex} style={{ marginLeft: '60px', marginTop: '10px' }}>{furtherDetail.content}</p>
+                ))}
+              </div>
+            ))}
+          </div>
         ))}
-      </ul> */}
-      <ul>
-          {points.map((point, index) => (
-              <li key={index}>
-                  <div>
-                      {point.content}
-                      {!point.detailRequested && (
-                          <button onClick={() => handleDetailRequest(index)} style={{marginLeft: '10px'}}>Ask for Details</button>
-                      )}
-                  </div>
-                  {point.detailRequested && point.details && (
-                      <div style={{marginTop: '10px'}}>
-                          {point.details.map((detail, detailIndex) => (
-                              <p key={detailIndex} style={{marginBottom: '5px'}}>{detail}</p>
-                          ))}
-                      </div>
-                  )}
-              </li>
-          ))}
-      </ul>
-
+      </div>}
     </div>
   );
 }
