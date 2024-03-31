@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getChatGPTResponse } from './ChatGPTService';
+import ParticleBackground from './components/ParticleBackground';
 
 function App() {
   const [topic, setTopic] = useState('');
@@ -53,7 +54,11 @@ function App() {
   };
 
   return (
+
     <div className="App">
+
+      <ParticleBackground/>
+
       <h1>Explore Educational Topics</h1>
       <form onSubmit={handleSubmit}>
         <input
