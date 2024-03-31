@@ -54,8 +54,9 @@ function App() {
   };
 
   return (
+
     <div className="App">
-      <h1 className="title">Explore Educational Topics</h1>
+      <h1>Explore Educational Topics</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
